@@ -8,11 +8,16 @@
     "cli": "npm run build --silent && node dist/cli.js",
     "generate-data": "ts-node --esm src/data-generator.ts"
   },
-  "keywords": ["sage", "simulator", "beta"],
+  "keywords": [
+    "sage",
+    "simulator",
+    "beta"
+  ],
   "license": "UNLICENSED",
   "dependencies": {
     "axios": "^1.9.0",
     "commander": "^13.1.0",
+    "dotenv": "^17.4.2",
     "groq-sdk": "^0.21.0"
   },
   "devDependencies": {

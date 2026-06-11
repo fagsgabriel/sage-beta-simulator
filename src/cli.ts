@@ -131,6 +131,8 @@ async function runCleanupFlow(env: string): Promise<number> {
 }
 
 async function main(): Promise<void> {
+  loadEnvFile();
+
   const program = new Command();
 
   program

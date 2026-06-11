@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
 import Groq from "groq-sdk";
 
 export type PersonaType = "jovem" | "adulto" | "idoso";
@@ -54,7 +55,16 @@ const PERSONA_TYPES: PersonaType[] = ["jovem", "adulto", "idoso"];
 const GROQ_DELAY_MS = 15_000;
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+function resolveProjectRoot(): string {
+  const fromCompiledModule = join(dirname(fileURLToPath(import.meta.url)), "..");
+  const markers = [".env", "package.json"];
+  if (markers.some((name) => existsSync(join(fromCompiledModule, name)))) {
+    return fromCompiledModule;
+  }
+  return process.cwd();
+}
+
+const PROJECT_ROOT = resolveProjectRoot();
 const CACHE_PATH = join(PROJECT_ROOT, "fixtures", "generated-data.json");
 
 const PERSONA_PROMPTS: Record<PersonaType, string> = {
@@ -118,30 +128,27 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function detectEnvFileEncoding(envPath: string): BufferEncoding {
+  const header = readFileSync(envPath);
+  if (header.length >= 2 && header[0] === 0xff && header[1] === 0xfe) {
+    return "utf16le";
+  }
+  return "utf8";
+}
+
+/** Carrega variáveis do `.env` na raiz do projeto (suporta UTF-8 e UTF-16 LE). */
 export function loadEnvFile(): void {
   const envPath = join(PROJECT_ROOT, ".env");
   if (!existsSync(envPath)) {
     return;
   }
 
-  const content = readFileSync(envPath, "utf-8");
-  for (const line of content.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) {
-      continue;
-    }
-
-    const separatorIndex = trimmed.indexOf("=");
-    if (separatorIndex === -1) {
-      continue;
-    }
-
-    const key = trimmed.slice(0, separatorIndex).trim();
-    const value = trimmed.slice(separatorIndex + 1).trim();
-    if (key && process.env[key] === undefined) {
-      process.env[key] = value;
-    }
-  }
+  dotenv.config({
+    path: envPath,
+    encoding: detectEnvFileEncoding(envPath),
+    override: false,
+    quiet: true,
+  });
 }
 
 function getGroqClient(): Groq {
