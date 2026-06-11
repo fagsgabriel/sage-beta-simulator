@@ -1,0 +1,21 @@
+{
+  "name": "sage-beta-simulator",
+  "version": "0.1.0",
+  "description": "Simulador de usuários beta para a API do Sage",
+  "type": "module",
+  "scripts": {
+    "cli": "ts-node --esm src/cli.ts"
+  },
+  "keywords": ["sage", "simulator", "beta"],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "commander": "^13.1.0",
+    "groq-sdk": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

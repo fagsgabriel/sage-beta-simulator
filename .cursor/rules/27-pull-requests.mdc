@@ -1,0 +1,99 @@
+---
+description: Padrao de descricao de Pull Request (Sage — web + API)
+alwaysApply: false
+---
+
+# Pull Requests — descricao e fluxo
+
+## Fonte de verdade
+
+- Estrutura do corpo: [`.github/pull_request_template.md`](.github/pull_request_template.md).
+- Branch e Linear: [`90-linear-workspace.mdc`](90-linear-workspace.mdc).
+
+## Branch
+
+- **MUST** criar branch de trabalho a partir de **`origin/main`** (`git fetch origin` → `git checkout -b <nome> origin/main`).
+- PR de retorno **SHOULD** ter base **`main`**, salvo fluxo explicito do time para outra branch.
+- **MUST NOT** push direto para `origin/main`.
+- Com issue Linear: usar `gitBranchName` retornado por `get_issue` (valor exato; ex.: `gabrielfagundesjlle/sag-28-financas-ocr-...`).
+
+## Quando aplicar
+
+Ao **criar ou redigir PR** (`gh pr create`, pedido "cria a PR", fechamento de issue Linear com entrega via PR).
+
+Ao concluir a implementação de uma issue (commits feitos, testes passando), o agente **MUST** perguntar ao usuário: "Posso abrir a PR?" antes de qualquer outra ação — nunca abrir sem confirmação, nunca deixar de perguntar.
+
+## Corpo da PR
+
+- **MUST** seguir as secoes do template GitHub (Resumo, Contexto, Arquivos alterados, Impacto, Refs, Plano de testes).
+- **MUST** preencher com base no diff e commits reais — **MUST NOT** placeholders genericos ("varias melhorias", "ajustes diversos").
+- Texto em **pt-BR** com acentuacao correta (mesma norma de issues em `90-linear-workspace.mdc`).
+- **Arquivos alterados**: tabela com arquivos principais; nao listar cada import ou rename trivial.
+- Secoes vazias **SHOULD** ser removidas antes de abrir a PR.
+- **MUST** incluir `SAG-XXX` em **Refs** quando a branch ou issue for Linear (`sag-28` → `SAG-28`).
+- **MUST** marcar/cruzar **Impacto** conforme o diff (web, API, Prisma, deploy, IA, env vars).
+- **MUST NOT** incluir footer "Generated with Claude" ou similar.
+
+## Checklist rapido (agente)
+
+Antes de `gh pr create`:
+
+1. Diff revisado; Resumo com bullets concretos.
+2. Test plan inclui `npm test` quando ha codigo alterado.
+3. `npm run test:e2e` quando alterou fluxos de UI em `apps/web`.
+4. Prisma: se alterou `apps/api/prisma/schema.prisma`, incluir no Impacto da PR e avisar que **a migration deve ser aplicada manualmente em produção após o merge**, rodando o comando abaixo com a URL do pooler do Supabase (porta 5432):
+   $env:DATABASE_URL="postgresql://postgres.ymawxbzlmgmyviewtfog:SENHA@aws-1-sa-east-1.pooler.supabase.com:5432/postgres"; $env:DIRECT_URL=$env:DATABASE_URL; npx prisma migrate deploy
+     Motivo: Pre-Deploy Command do Render é pago; migrations não rodam automaticamente no deploy.
+5. UI: tema claro e escuro validados se tocou estilos em `apps/web`.
+6. Integracao API: rotas citadas como `METODO /api/v1/...` conforme `apps/api/src/modules/`.
+7. Deploy: mencionar se afeta Vercel (frontend) ou API em producao.
+
+## Criação da PR (agente)
+
+- **MUST** usar `gh pr create` via CLI — nunca gerar URL de browser (`/pull/new/...`) nem montar link manualmente.
+- Corpo com quebras de linha: **MUST** usar `--body-file <arquivo>` — nunca passar `--body` com string multiline (quebra no PowerShell).
+- Fluxo obrigatório:
+  1. Escrever o corpo em um arquivo temporário `.pr_body.md` na raiz do repositório
+  2. Executar `gh pr create --base main --title "..." --body-file .pr_body.md`
+  3. Deletar `.pr_body.md` após a PR ser criada com `Remove-Item .pr_body.md`
+
+## Exemplo (feature OCR em financas)
+
+```markdown
+## Resumo
+
+- **OCR na listagem**: atalho "Escanear comprovante" na pagina `/financas` abre fluxo de nova despesa com campos pre-preenchidos
+- **Paridade API**: `POST /finances/ocr` aplica rate limit de IA e aceita lista de ativos para matching de `assetId`
+- **Metricas**: evento GA4 `usou_ocr` com `context: 'financas'` apos OCR bem-sucedido
+
+## Contexto
+
+Issue SAG-28 — OCR ja existia em `/financas/nova`, mas a pagina principal nao expunha o atalho e o fluxo estava atras do de manutencoes.
+
+## Arquivos alterados
+
+| Arquivo | Mudanca |
+|---------|---------|
+| `apps/web/src/pages/finances.tsx` | CTA de OCR no header e empty state |
+| `apps/api/src/modules/finances/finances.controller.ts` | Rate limit em `ocrExpenseController` |
+| `apps/web/src/hooks/use-finances.ts` | Tracking GA4 em `useOcrExpense` |
+
+## Impacto
+
+- [x] **Web** — nova UI em `/financas`
+- [x] **API** — `POST /finances/ocr` com rate limit
+- [ ] **Prisma / migration**
+- [ ] **Deploy Vercel** — so frontend; sem mudanca de env
+- [ ] **IA / Groq** — mesmo provider; prompt inalterado
+- [ ] **Env vars**
+
+## Refs
+
+- Linear: SAG-28
+
+## Plano de testes
+
+- [x] `npm test`
+- [x] `npm run test:e2e` — fluxo OCR em financas (mock de `/finances/ocr`)
+- [ ] Validacao manual: foto de comprovante no mobile e upload no desktop
+```
