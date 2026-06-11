@@ -1,0 +1,50 @@
+---
+description: Sage — testes, CI e convencoes Git
+alwaysApply: true
+---
+
+# Sage — Testes e Git
+
+## Testes
+
+| Camada | Ferramenta | Comando |
+|--------|------------|---------|
+| API | Vitest | `npm run test:api` |
+| Web | Vitest + RTL | `npm run test:web` |
+| E2E | Playwright | `npm run test:e2e` |
+| CI completo | — | `npm run ci:full` |
+
+- Cobertura minima alvo: 60% (CI roda coverage nos workspaces)
+- Novo modulo API **SHOULD** incluir testes em `__tests__/` do modulo
+- Fluxos de UI criticos **SHOULD** ter E2E em `apps/web/e2e/`
+- Mocks de API nos E2E: `e2e/helpers/api-mocks.ts`
+
+## Git
+
+### Branch
+
+- Principal: **`main`** (ver tambem `90-linear-workspace.mdc` e `27-pull-requests.mdc`)
+- Com issue Linear: usar `gitBranchName` de `get_issue` (ex.: `gabrielfagundesjlle/sag-28-...`)
+- Feature branch **MUST** partir de `origin/main`
+- **MUST NOT** push direto para `origin/main`
+
+### Início de tarefa
+
+Antes de qualquer `git add`, `git commit` ou implementação de código, o agente **MUST**:
+1. Confirmar com o usuário qual issue está sendo trabalhada (se não estiver explícita no contexto).
+2. Chamar `get_issue` para obter o `gitBranchName` correto.
+3. Criar a branch a partir de `origin/main` e mudar para ela: `git fetch origin && git checkout -b <gitBranchName> origin/main`.
+Só então iniciar a implementação.
+
+### Commits
+
+- Antes de qualquer commit, **MUST** rodar `npx tsc --noEmit` no workspace afetado, exibir o output completo ao usuário e aguardar confirmação de que está limpo. Nunca commitar se houver erros TypeScript.
+- Mensagens em portugues: `tipo(escopo): descricao`
+- Tipos: feat, fix, refactor, style, test, docs, chore
+- **MUST NOT** commitar sem pedido explicito do usuario
+- Antes de commitar: mostrar diff, resumir mudancas, aguardar confirmacao
+
+### Pull requests
+
+- Ver `27-pull-requests.mdc` e template `.github/pull_request_template.md`
+- Refs Linear: `SAG-XXX`

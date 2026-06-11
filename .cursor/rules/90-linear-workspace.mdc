@@ -1,0 +1,159 @@
+---
+description: Projeto Linear padrao deste repositorio (Sage / Roadmap Lançamento)
+alwaysApply: true
+---
+
+# Linear workspace
+
+Este repositorio corresponde **somente** ao projeto Linear abaixo, salvo instrucao explicita do usuario.
+
+- URL: <https://linear.app/sagetasks/project/roadmap-lancamento-b2efc95aff0c>
+- Nome: Roadmap — Lançamento
+- Slug: `roadmap-lancamento-b2efc95aff0c`
+- ID do projeto: `73d742f3-7896-4f5a-bd9c-299bbba85222`
+- Time: Sage (key `SAG`, id `8b1b307f-6ed8-48c6-bdb9-5f0d8f77a628`)
+
+## Fonte normativa
+
+- O conjunto completo de rules em `.cursor/rules/` **MUST** ser considerado antes de criar, atualizar ou implementar qualquer issue deste projeto.
+- `00-governance.mdc` define precedencia e autoridade por tema.
+- Esta rule e autoritativa apenas para operacao Linear/MCP.
+- Issues **SHOULD** citar, na secao "Rules do Projeto", as rules mais relevantes para a implementacao, sem limitar a obrigacao de respeitar o conjunto completo.
+
+## Uso MCP
+
+- `list_issues` e filtros **MUST** usar `project` com o ID acima (ou slug `roadmap-lancamento-b2efc95aff0c`).
+- Criacao de issue **MUST** usar `team: SAG` (ou Sage) e o mesmo `project`.
+- Ferramentas de escrita (`save_issue`, `save_comment`, `create_document`, `update_document`, `save_project`) **MUST** operar apenas neste projeto quando a tarefa estiver relacionada a este repositorio.
+- Status, labels, ciclos e configuracoes do time **MUST NOT** ser alterados como parte de tarefas deste repositorio sem instrucao explicita do usuario.
+- Labels novas **MUST NOT** ser criadas sem verificar duplicidade e sem aprovacao explicita.
+- Metadados como prioridade, labels, assignee, ciclo e estimate **SHOULD** seguir o fluxo atual do time; quando nao houver informacao suficiente, preservar o estado existente.
+
+## Padrao de descricao de issue
+
+Issues criadas ou enriquecidas por agentes **SHOULD** usar Markdown claro, orientado a humanos e agentes de IA. O template e guia recomendado, nao bloqueio rigido; secoes que nao fizerem sentido podem ser removidas ou adaptadas.
+
+### Ortografia (português em issues)
+
+- Texto em português em **títulos**, **descrições** e **comentários** de issues **SHOULD** usar **acentuação e cedilha corretas** conforme pt-BR (ex.: *não*, *começar*, *está*, *também*, *ação*, *preferências*).
+- **MUST NOT** publicar texto corrido em português sem acentos por conveniência (ex.: `nao`, `comecar`, `esta`). Exceções: identificadores de código, caminhos de arquivo, nomes de APIs, comandos e termos em inglês quando for o termo técnico usual.
+- Agentes ao usar `save_issue` ou `save_comment` com conteúdo em português **SHOULD** reler e corrigir acentuação antes de enviar.
+
+```markdown
+## Descrição
+> O que precisa ser feito e por quê.
+
+## Objetivo
+> Qual resultado esperado quando a issue for concluída.
+
+## Contexto
+> Antecedentes, links relevantes, decisões anteriores ou issues relacionadas.
+
+## Rules do Projeto
+> Rules de `.cursor/rules/` relevantes para esta issue. Sempre considerar o conjunto completo antes de implementar.
+> Exemplos por tema (citar as aplicáveis, não só uma):
+> - Arquitetura e convencoes: `10-sage-arquitetura.mdc`
+> - Dominio e regras de negocio: `11-sage-dominio.mdc`
+> - Testes e Git: `12-sage-testes-git.mdc`
+> - Pull request e branch: `27-pull-requests.mdc`, `90-linear-workspace.mdc`
+> - Prisma / schema / migrations: `apps/api/prisma/`
+> - UI web: `apps/web/src/pages/`, `apps/web/src/components/`
+> - IA / OCR / voz / rate limit: `11-sage-dominio.mdc`, `ai-rate-limit.ts`
+> - E2E Playwright: `apps/web/e2e/`
+> - Deploy / CI: `.github/workflows/ci.yml`
+
+## Critérios de aceite
+- [ ] Critério 1
+- [ ] Critério 2
+
+## Tarefas
+- [ ] Subtarefa técnica 1
+- [ ] Subtarefa técnica 2
+
+## Testes
+- [ ] Testes unitários, de integração ou E2E adicionados ou atualizados conforme o escopo.
+- [ ] Cenários críticos validados manualmente quando automação não for aplicável.
+> Toda issue desenvolvida deve incluir estratégia de testes. Se não houver teste automatizado, justificar o motivo.
+
+## Notas técnicas
+> Abordagem sugerida, arquitetura, dependências, riscos ou pontos de atenção.
+```
+
+### Regras de preenchimento
+
+- Issues novas **SHOULD** ter pelo menos: Descrição, Objetivo, Critérios de aceite, Rules do Projeto e Testes.
+- Descricoes existentes **MUST NOT** ser removidas; ao atualizar, complementar, reorganizar ou enriquecer preservando a informacao original.
+- Issues com descricao vazia **SHOULD** ser preenchidas com inferencia conservadora baseada em titulo, labels, projeto e contexto conhecido.
+- Toda issue desenvolvida **SHOULD** prever testes automatizados ou justificar validacao manual.
+- Issues com muitas tarefas tecnicas **SHOULD** ser avaliadas para quebra em sub-issues.
+
+## Mapeamento rules por tipo de issue (producao / Sage)
+
+Ao criar ou enriquecer issues a partir de incidentes de producao, **SHOULD** citar na secao **Rules do Projeto** pelo menos as referencias abaixo quando o escopo corresponder:
+
+| Tipo de incidente | Referencias prioritarias |
+|---|---|
+| Erro 5xx / timeout em rota API | `apps/api/src/modules/`, testes do modulo afetado |
+| Falha de migration Prisma / schema drift | `apps/api/prisma/`, `npm run db:migrate` |
+| Groq / IA (OCR, voz) — timeout, limite, JSON invalido | `ai-rate-limit.ts`, service do modulo (`finances`, `maintenances`, `documents`) |
+| Bug de UI / regressao visual | `apps/web/src/pages/`, E2E em `apps/web/e2e/` |
+| Deploy Vercel / build frontend | `.github/workflows/ci.yml`, `apps/web` |
+| Auth / sessao / token | `apps/api/src/modules/auth/`, hooks de auth no web |
+
+Issues de bug em producao **SHOULD** incluir URL ou rota afetada, ambiente (prod/staging), release ou commit, e criterio de monitoramento pos-fix (ex.: 7–14 dias sem recorrencia).
+
+## Operacao recomendada por acao
+
+- `save_issue` criando issue: usar `team: SAG`, `project: 73d742f3-7896-4f5a-bd9c-299bbba85222`, descricao em Markdown e labels existentes quando fizer sentido; texto em português **SHOULD** seguir **Ortografia (português em issues)**.
+- `save_issue` atualizando issue: preservar descricao existente, nao alterar status/labels/prioridade/assignee/ciclo sem necessidade clara; texto em português **SHOULD** seguir a seção **Ortografia (português em issues)** acima.
+- Ao mover issue para `Done`, **SHOULD** registrar comentario de fechamento com o que foi entregue e como foi validado.
+- `save_comment`: comentarios de progresso **SHOULD** resumir o que foi feito, pendencias e proximos passos; mesma norma de ortografia quando o comentário for em português.
+- Antes de criar issue, **SHOULD** buscar possiveis duplicatas dentro deste projeto.
+
+## Priorizacao sugerida
+
+- Crash, perda de dados ou incidente critico: `Urgent`.
+- Bug em producao ou bloqueio relevante: `High`.
+- Bug em staging, feature nova ou melhoria relevante: `Medium`.
+- Refactor, documentacao, chore ou melhoria pequena: `Low`.
+- `No priority` **MAY** ser preservado quando o fluxo atual ainda nao exigir triagem.
+
+## Labels atuais observadas
+
+- `Bug`
+- `Feature`
+- `Improvement`
+
+## Status atuais observados
+
+- `Backlog`
+- `Todo`
+- `In Progress`
+- `In Review`
+- `Done`
+- `Canceled`
+- `Duplicate`
+
+## Padrao de branch por issue
+
+- Branch de trabalho para issue Linear **MUST** seguir o valor de `gitBranchName` retornado por `get_issue`.
+- Para o time Sage, o padrao esperado **SHOULD** seguir o `gitBranchName` retornado por `get_issue` (ex.: `sag-23-...`); usar o valor exato do Linear, nao inventar variante.
+- Branches longas com titulo da issue (ex.: `SAG-23-...`) **MUST NOT** ser o padrao quando existir `gitBranchName` no Linear.
+- Ao iniciar uma atividade, **SHOULD** consultar `get_issue` primeiro e criar/renomear a branch local para o valor retornado.
+
+### Base e push (Git)
+
+- Novas branches de trabalho **MUST** ser criadas a partir de **`origin/main`**, salvo instrução explícita do time para outra base.
+- Exemplo (issue com `gitBranchName` `sag-23-...`): após `git fetch origin`, criar com `git checkout -b sag-23-... origin/main` — a branch local parte do estado atual de `main` remoto.
+- O primeiro push **SHOULD** publicar a branch homônima no remoto e definir upstream, p.ex. `git push -u origin sag-23-...`, de modo que commits seguintes usem `git push` apenas para a branch da issue, e não para `main`.
+- **MUST NOT** enviar o branch da issue para `origin/main` com push direto (ex.: `git push origin HEAD:main` ou equivalente). Atualizar `main` no remoto **SHOULD** ocorrer só via merge/rebase acordado (ex.: PR), nunca por push acidental do branch de feature.
+- Antes de `git push`, **SHOULD** conferir o remoto de tracking (`git status` ou `git branch -vv`) para garantir que não está configurado para `origin/main`.
+
+## Mapeamento rapido de funcoes MCP (Linear)
+
+- `get_issue`: detalha a issue por ID (`SAG-123`) e retorna `gitBranchName`; usar para iniciar tarefa e confirmar padrao de branch.
+- `list_issues`: lista issues com filtros (`project`, `team`, `state`, `assignee`, `label`, etc.); usar para backlog e triagem.
+- `save_issue`: cria/atualiza issue; criacao **MUST** manter `team: SAG` + `project` deste repositorio.
+- `list_issue_statuses` / `get_issue_status`: consultar estados validos antes de mudar status de issue.
+- `list_projects` / `get_project`: conferir IDs/slugs quando houver duvida de escopo de projeto.
+- `list_comments` / `save_comment`: ler e registrar atualizacoes de execucao diretamente na issue.

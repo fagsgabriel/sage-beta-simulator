@@ -1,0 +1,40 @@
+---
+description: Governanca e precedencia das rules do projeto
+alwaysApply: true
+---
+
+# Governance - rulebook
+
+## Normativa
+
+- **MUST**: obrigatorio. Nao cumprir requer justificativa explicita e aprovacao.
+- **SHOULD**: recomendado forte. Pode haver excecao pontual com justificativa.
+- **MAY**: opcional.
+
+## Autoridade por tema
+
+| Tema | Rule |
+|------|------|
+| Governanca / precedencia | `00-governance.mdc` |
+| Arquitetura e convencoes de codigo | `10-sage-arquitetura.mdc` |
+| Dominio, API e regras de negocio | `11-sage-dominio.mdc` |
+| Testes e Git | `12-sage-testes-git.mdc` |
+| Pull requests | `27-pull-requests.mdc` |
+| Linear / MCP | `90-linear-workspace.mdc` |
+
+## Resolucao de conflitos
+
+- Quando duas rules cobrirem o mesmo tema, **MUST** prevalecer a rule autoritativa da tabela acima.
+- Regras antigas ou duplicadas **MUST NOT** coexistir com regras novas de mesmo escopo.
+
+## Fonte de verdade
+
+- O rulebook em `.cursor/rules/` e a **unica** fonte normativa para agentes e desenvolvedores.
+- Contratos de API: `apps/api/prisma/schema.prisma` + modulos em `apps/api/src/modules/`.
+- Arquivos `cursorrules` e `.cursorrules` sao apenas redirecionamentos — **MUST NOT** editar regras neles.
+
+## Evolucao do rulebook
+
+- **MAY** criar novas rules em `.cursor/rules/` quando o projeto exigir orientacao persistente.
+- **SHOULD** atualizar rules quando o uso revelar lacunas ou conteudo desatualizado.
+- Ao criar ou alterar rules, **SHOULD** respeitar **Autoridade por tema** e evitar duplicidade de escopo.
