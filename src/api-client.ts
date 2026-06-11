@@ -274,7 +274,11 @@ export class ApiClient {
   }
 
   async completeTask(taskId: string): Promise<Task> {
-    const { data } = await this.http.patch<Task>(`/tasks/${taskId}/complete`);
+    const { data } = await this.http.patch<Task>(
+      `/tasks/${taskId}/complete`,
+      {},
+      { headers: { "Content-Type": "application/json" } },
+    );
     return data;
   }
 
@@ -283,6 +287,8 @@ export class ApiClient {
   ): Promise<OnboardingChecklistResult> {
     const { data } = await this.http.post<OnboardingChecklistResult>(
       `/ai/onboarding-checklist/${assetId}`,
+      {},
+      { headers: { "Content-Type": "application/json" } },
     );
     return data;
   }
@@ -303,11 +309,19 @@ export class ApiClient {
   }
 
   async acceptRecommendation(recommendationId: string): Promise<void> {
-    await this.http.patch(`/ai/recommendations/${recommendationId}/accept`);
+    await this.http.patch(
+      `/ai/recommendations/${recommendationId}/accept`,
+      {},
+      { headers: { "Content-Type": "application/json" } },
+    );
   }
 
   async dismissRecommendation(recommendationId: string): Promise<void> {
-    await this.http.patch(`/ai/recommendations/${recommendationId}/dismiss`);
+    await this.http.patch(
+      `/ai/recommendations/${recommendationId}/dismiss`,
+      {},
+      { headers: { "Content-Type": "application/json" } },
+    );
   }
 
   async getAssetsSummary(): Promise<{ averageHealthScore: number }> {
