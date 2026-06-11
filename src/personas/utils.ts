@@ -8,6 +8,13 @@ import type {
 export const SIMULATOR_PASSWORD = "SageSim2026!";
 export const ACTION_DELAY_MS = 900;
 
+const SIMULATION_EMAIL_PATTERN =
+  /^sim-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}@sage\.test$/i;
+
+export function isSimulationEmail(email: string): boolean {
+  return SIMULATION_EMAIL_PATTERN.test(email);
+}
+
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

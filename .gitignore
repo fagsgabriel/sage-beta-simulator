@@ -2,3 +2,4 @@ node_modules/
 dist/
 .env
 fixtures/generated-data.json
+fixtures/sim-users.json
