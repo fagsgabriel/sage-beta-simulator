@@ -10,6 +10,17 @@ export interface PersonaExecutionResult {
   assetIds: string[];
 }
 
+/** Estado após setup sequencial (registro + ativos + onboarding). */
+export interface PersonaSetupState {
+  persona: PersonaType;
+  userId: string;
+  email: string;
+  password: string;
+  name: string;
+  assetIds: string[];
+  onboardingTaskIds: string[];
+}
+
 export interface PersonaBehavior {
   /** Aceita o checklist de onboarding via bulk create. */
   acceptOnboardingChecklist: boolean;
