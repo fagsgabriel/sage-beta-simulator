@@ -1,9 +1,31 @@
-/**
- * Persona adulto — fluxo de simulação para usuários intermediários.
- * Implementação completa em SAG-45.
- */
+import type { ApiClient } from "../api-client.js";
+import type { PersonaGeneratedData } from "../data-generator.js";
+import { runPersonaFlow } from "./flow.js";
+import type { Persona, PersonaExecutionResult } from "./types.js";
+
 export const PERSONA_NAME = "adulto" as const;
 
-export async function runAdultoPersona(): Promise<void> {
-  throw new Error("Persona adulto não implementada — ver SAG-45");
+const adultoPersona: Persona = {
+  name: PERSONA_NAME,
+  behavior: {
+    acceptOnboardingChecklist: true,
+    recommendationAcceptRate: 1,
+    completeManualTasks: true,
+    completeOnboardingTasks: true,
+  },
+  async execute(
+    apiClient: ApiClient,
+    data: PersonaGeneratedData,
+  ): Promise<PersonaExecutionResult> {
+    return runPersonaFlow(PERSONA_NAME, adultoPersona.behavior, apiClient, data);
+  },
+};
+
+export async function runAdultoPersona(
+  apiClient: ApiClient,
+  data: PersonaGeneratedData,
+): Promise<PersonaExecutionResult> {
+  return adultoPersona.execute(apiClient, data);
 }
+
+export { adultoPersona };
