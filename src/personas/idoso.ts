@@ -1,9 +1,31 @@
-/**
- * Persona idoso — fluxo de simulação para usuários avançados.
- * Implementação completa em SAG-45.
- */
+import type { ApiClient } from "../api-client.js";
+import type { PersonaGeneratedData } from "../data-generator.js";
+import { runPersonaFlow } from "./flow.js";
+import type { Persona, PersonaExecutionResult } from "./types.js";
+
 export const PERSONA_NAME = "idoso" as const;
 
-export async function runIdosoPersona(): Promise<void> {
-  throw new Error("Persona idoso não implementada — ver SAG-45");
+const idosoPersona: Persona = {
+  name: PERSONA_NAME,
+  behavior: {
+    acceptOnboardingChecklist: true,
+    recommendationAcceptRate: 0.15,
+    completeManualTasks: false,
+    completeOnboardingTasks: false,
+  },
+  async execute(
+    apiClient: ApiClient,
+    data: PersonaGeneratedData,
+  ): Promise<PersonaExecutionResult> {
+    return runPersonaFlow(PERSONA_NAME, idosoPersona.behavior, apiClient, data);
+  },
+};
+
+export async function runIdosoPersona(
+  apiClient: ApiClient,
+  data: PersonaGeneratedData,
+): Promise<PersonaExecutionResult> {
+  return idosoPersona.execute(apiClient, data);
 }
+
+export { idosoPersona };

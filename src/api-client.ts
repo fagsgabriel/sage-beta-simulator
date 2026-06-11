@@ -28,6 +28,70 @@ export interface AuthResponse {
   user: AuthUser;
 }
 
+export type AssetCategory =
+  | "VEHICLE"
+  | "ELECTRONIC"
+  | "APPLIANCE"
+  | "PROPERTY"
+  | "OTHER";
+
+export type MaintenanceType = "PREVENTIVE" | "CORRECTIVE";
+
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
+export type TaskStatus = "PENDING" | "COMPLETED" | "DISMISSED";
+
+export type RecommendationStatus = "PENDING" | "ACCEPTED" | "DISMISSED";
+
+export interface Asset {
+  id: string;
+  name: string;
+  category: AssetCategory;
+  healthScore: number;
+}
+
+export interface Maintenance {
+  id: string;
+  assetId: string;
+  title: string;
+  maintenanceDate: string;
+  type: MaintenanceType;
+  cost: number;
+}
+
+export interface Task {
+  id: string;
+  assetId: string | null;
+  title: string;
+  priority: TaskPriority;
+  status: TaskStatus;
+}
+
+export interface AiRecommendation {
+  id: string;
+  assetId: string;
+  recommendationText: string;
+  status: RecommendationStatus;
+}
+
+export interface OnboardingChecklistTask {
+  title: string;
+  description?: string | null;
+  recurrenceDays: number;
+  executor: "SELF" | "MECHANIC" | "BOTH";
+  priority: "LOW" | "MEDIUM" | "HIGH";
+}
+
+export type OnboardingChecklistResult =
+  | { status: "ok"; source: "ai" | "cached"; tasks: OnboardingChecklistTask[] }
+  | { status: "ai_unavailable"; fallback: "static"; message: string };
+
+export type AnalyzeAssetResult =
+  | { outcome: "created"; recommendation: AiRecommendation }
+  | { outcome: "cached"; recommendation: AiRecommendation; cachedUntil: string }
+  | { outcome: "below_threshold"; message: string; confidence: number }
+  | { outcome: "ai_unavailable"; message: string };
+
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
 };
@@ -141,6 +205,116 @@ export class ApiClient {
   async deleteAccount(): Promise<void> {
     await this.http.delete("/users/me");
     this.clearTokens();
+  }
+
+  async createAsset(input: {
+    name: string;
+    category: AssetCategory;
+    estimatedValue?: number | null;
+    acquisitionDate?: string | null;
+    description?: string | null;
+    metadata?: Record<string, unknown> | null;
+    licensePlate?: string | null;
+  }): Promise<Asset> {
+    const { data } = await this.http.post<Asset>("/assets", input);
+    return data;
+  }
+
+  async createMaintenance(input: {
+    assetId: string;
+    title: string;
+    description?: string | null;
+    cost?: number;
+    maintenanceDate: string;
+    type: MaintenanceType;
+  }): Promise<Maintenance> {
+    const { data } = await this.http.post<{ maintenance: Maintenance }>(
+      "/maintenances",
+      input,
+    );
+    return data.maintenance;
+  }
+
+  async createTask(input: {
+    assetId?: string | null;
+    title: string;
+    description?: string | null;
+    priority: TaskPriority;
+    dueDate?: string;
+    source?: "MANUAL" | "AI" | "MICRO_MAINTENANCE" | "AI_ONBOARDING";
+  }): Promise<Task> {
+    const { data } = await this.http.post<Task>("/tasks", input);
+    return data;
+  }
+
+  async bulkCreateTasks(input: {
+    source?: "MANUAL" | "AI" | "MICRO_MAINTENANCE" | "AI_ONBOARDING";
+    tasks: Array<{
+      assetId: string;
+      title: string;
+      description?: string | null;
+      priority?: TaskPriority;
+      dueDate?: string | null;
+      recurrenceDays: number;
+      executor?: "SELF" | "MECHANIC" | "BOTH";
+    }>;
+  }): Promise<Task[]> {
+    const { data } = await this.http.post<Task[]>("/tasks/bulk", input);
+    return data;
+  }
+
+  async listTasks(params?: {
+    status?: TaskStatus;
+    asset_id?: string;
+  }): Promise<Task[]> {
+    const { data } = await this.http.get<{ data: Task[] }>("/tasks", {
+      params,
+    });
+    return data.data;
+  }
+
+  async completeTask(taskId: string): Promise<Task> {
+    const { data } = await this.http.patch<Task>(`/tasks/${taskId}/complete`);
+    return data;
+  }
+
+  async generateOnboardingChecklist(
+    assetId: string,
+  ): Promise<OnboardingChecklistResult> {
+    const { data } = await this.http.post<OnboardingChecklistResult>(
+      `/ai/onboarding-checklist/${assetId}`,
+    );
+    return data;
+  }
+
+  async analyzeAsset(assetId: string): Promise<AnalyzeAssetResult> {
+    const { data } = await this.http.post<AnalyzeAssetResult>(
+      `/ai/analyze/${assetId}`,
+      {},
+    );
+    return data;
+  }
+
+  async listRecommendations(): Promise<AiRecommendation[]> {
+    const { data } = await this.http.get<AiRecommendation[]>(
+      "/ai/recommendations",
+    );
+    return data;
+  }
+
+  async acceptRecommendation(recommendationId: string): Promise<void> {
+    await this.http.patch(`/ai/recommendations/${recommendationId}/accept`);
+  }
+
+  async dismissRecommendation(recommendationId: string): Promise<void> {
+    await this.http.patch(`/ai/recommendations/${recommendationId}/dismiss`);
+  }
+
+  async getAssetsSummary(): Promise<{ averageHealthScore: number }> {
+    const { data } = await this.http.get<{ averageHealthScore: number }>(
+      "/assets/summary",
+    );
+    return data;
   }
 
   private storeAuthResponse(data: AuthResponse): AuthResponse {
