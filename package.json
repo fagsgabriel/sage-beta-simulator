@@ -4,7 +4,8 @@
   "description": "Simulador de usuários beta para a API do Sage",
   "type": "module",
   "scripts": {
-    "cli": "ts-node --esm src/cli.ts",
+    "build": "tsc",
+    "cli": "npm run build --silent && node dist/cli.js",
     "generate-data": "ts-node --esm src/data-generator.ts"
   },
   "keywords": ["sage", "simulator", "beta"],
