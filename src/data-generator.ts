@@ -118,7 +118,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function loadEnvFile(): void {
+export function loadEnvFile(): void {
   const envPath = join(PROJECT_ROOT, ".env");
   if (!existsSync(envPath)) {
     return;
